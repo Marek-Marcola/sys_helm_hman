@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202509090061"
+VERSION_BIN="202509100061"
 
 ID="[${0##*/}]"
 
@@ -839,8 +839,6 @@ if [ $SLOAD -ne 0 ]; then
     echo error: require CM_HOST
     exit 1
   fi
-
-
 
   set -ex
   cd $SDIR
