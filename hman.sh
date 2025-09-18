@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202509100061"
+VERSION_BIN="202509180061"
 
 ID="[${0##*/}]"
 
@@ -347,7 +347,9 @@ fi
 if [ $VERSION -eq 1 ]; then
   echo "${0##*/}  $VERSION_BIN"
   if [ $(type -t helm) ]; then
+    set -ex
     helm version
+    { set +ex; } 2>/dev/null
   fi
   exit 0
 fi
