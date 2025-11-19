@@ -8,9 +8,12 @@ Install
 Install:
 
     ./hman.sh --install
-
+    -- or --
     cp -fv hman.sh /usr/local/bin/hman.sh
     cp -fv hman.sh /usr/local/bin/hman-exec.sh
+
+    mkdir -pv /usr/local/etc/hman.d
+    mkdir -pv /usr/local/bin/alias-hman
 
 Verify:
 
