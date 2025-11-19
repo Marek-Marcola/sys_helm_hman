@@ -29,7 +29,7 @@ Alias:
     export PATH=/usr/local/bin/alias-hman:$PATH
     
     hm() {
-      local desc="@@list chart management (via hman.sh)@@"
+      local desc="@@helm chart management (via hman.sh)@@"
       hman.sh $@
     }
     EOF
