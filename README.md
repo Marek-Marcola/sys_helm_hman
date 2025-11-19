@@ -19,3 +19,14 @@ Verify:
 Help:
 
     hman.sh --help
+
+Alias:
+
+    # cat > /etc/profile.d/zlocal-hman.sh <<\EOF
+    export PATH=/usr/local/bin/alias-hman:$PATH
+    
+    hm() {
+      local desc="@@list chart management (via hman.sh)@@"
+      hman.sh $@
+    }
+    EOF
