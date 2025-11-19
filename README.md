@@ -1,7 +1,7 @@
 helm hman
 =========
 
-Helm release management tools.
+Helm chart management tools.
 
 Install
 -------
