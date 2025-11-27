@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202509180061"
+VERSION_BIN="202511270061"
 
 ID="[${0##*/}]"
 
@@ -67,8 +67,7 @@ if [[ $COMM == *hman-exec.sh ]]; then
   QUIET=1
 fi
 
-while [ $# -gt 0 ]
-do
+while [ $# -gt 0 ]; do
   case $1 in
     --inst*|-inst*)
       INSTALL=1
@@ -258,6 +257,9 @@ do
   esac
 done
 
+#
+# stage: HELP
+#
 if [ $HELP -eq 1 ]; then
   echo "$(basename $0) -install         # install"
   echo "$(basename $0) -version         # version"
@@ -323,6 +325,9 @@ if [ $HELP -eq 1 ]; then
   exit 0
 fi
 
+#
+# stage: CONFIG
+#
 for f in /usr/local/etc/hman.env $EDIR/$A $HOME/.hman.env .hman.env $CMANENV; do
   if [ -e $f ]; then
     [[ "$EFILE" != "" ]] && EFILE="$EFILE $f" || EFILE="$f"
