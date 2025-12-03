@@ -15,15 +15,7 @@ Install:
     mkdir -pv /usr/local/etc/hman.d
     mkdir -pv /usr/local/bin/alias-hman
 
-Verify:
-
-    hman.sh --version
-
-Help:
-
-    hman.sh --help
-
-Alias:
+Postinstall:
 
     # cat > /etc/profile.d/zlocal-hman.sh <<\EOF
     export PATH=/usr/local/bin/alias-hman:$PATH
@@ -33,3 +25,11 @@ Alias:
       hman.sh $@
     }
     EOF
+
+Verify:
+
+    hman.sh --version
+
+Help:
+
+    hman.sh --help
