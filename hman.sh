@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202512070061"
+VERSION_BIN="202512090061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -905,7 +905,7 @@ if [ $BACKUP -ne 0 ]; then
     { set +x; } 2>/dev/null
   fi
 
-  F=${DDIR}/hman-$(hostname -s)-$(date "+%Y%m%d%H%M").tar
+  F=$DDIR/hman-$(hostname -s)-$(date "+%Y%m%d%H%M").tar
 
   set -x
   cd /usr/local
@@ -922,6 +922,6 @@ if [ $BACKUP_LIST -ne 0 ]; then
   echo "$ID: stage: BACKUP-LIST"
 
   set -x
-  tree --noreport -F -h -C -L 1 ${DDIR}
+  tree --noreport -F -h -C -L 1 $DDIR
   { set +x; } 2>/dev/null
 fi
