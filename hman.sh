@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202512090061"
+VERSION_BIN="202512110061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -17,7 +17,7 @@ EXEC=0
 EVAL=0
 ELIST=0
 ESHOW=0
-ESHOW_ALL=0
+ESHOW_REXP=""
 EEDIT=0
 EEDIT_TEMPLATE=0
 RLIST=0
@@ -134,13 +134,9 @@ while [ $# -gt 0 ]; do
       ELIST=1
       shift
       ;;
-    -s)
+    -s*)
+      [[ "$1" != "-s" ]] && ESHOW_REXP=${1:2}
       ESHOW=1
-      shift
-      ;;
-    -S*)
-      [[ "$1" != "-S" ]] && REXP=${1:2}
-      ESHOW_ALL=1
       QUIET=1
       shift
       ;;
@@ -296,8 +292,7 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -ls              # spooler list"
   echo ""
   echo "$SN -l               # env list"
-  echo "$SN -s               # env show"
-  echo "$SN -S[rexp]         # env show all"
+  echo "$SN -s[rexp]         # env show"
   echo "$SN -E               # env edit"
   echo "$SN -Et              # env edit with template"
   echo "$SN                  # env list/app history"
@@ -503,37 +498,48 @@ fi
 #
 if [ $ESHOW -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: ENV-SHOW"
+  echo "$ID: stage: ENV-SHOW (rexp: *$ESHOW_REXP*)"
 
-  if [ ! -f $EDIR/$A ]; then
-    echo file not found: $EDIR/$A
+  if [ "$A" != "hman" -a  "$ESHOW_REXP" = "" ]; then
+    if [ ! -f $EDIR/$A ]; then
+      echo file not found: $EDIR/$A
+    else
+      set -ex
+      cat $EDIR/$A
+      { set +ex; } 2>/dev/null
+    fi
   else
-    set -ex
-    cat $EDIR/$A
-    { set +ex; } 2>/dev/null
+    for f in $EDIR/*$ESHOW_REXP*; do
+      if [ -f $f ]; then
+        set -ex
+        cat $f  2>&1
+        { set +ex; } 2>/dev/null
+        echo
+      fi
+    done
   fi
 fi
 
 #
 # stage: ENV-SHOW-ALL
 #
-if [ $ESHOW_ALL -eq 1 ]; then
-  (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: ENV-SHOW-ALL (rexp: *$REXP*)"
-
-  if [ ! -d $EDIR ]; then
-    echo directory not found: $EDIR
-  else
-    (
-    for f in $EDIR/*$REXP*; do
-      if [ -f $f ]; then
-        echo | xargs -L1 -t cat $f 2>&1
-        echo
-      fi
-    done
-    ) | sed '${/^$/d;}'
-  fi
-fi
+#if [ $ESHOW_ALL -eq 1 ]; then
+#  (( $s != 0 )) && echo; ((++s))
+#  echo "$ID: stage: ENV-SHOW-ALL (rexp: *$REXP*)"
+#
+#  if [ ! -d $EDIR ]; then
+#    echo directory not found: $EDIR
+#  else
+#    (
+#    for f in $EDIR/*$REXP*; do
+#      if [ -f $f ]; then
+#        echo | xargs -L1 -t cat $f 2>&1
+#        echo
+#      fi
+#    done
+#    ) | sed '${/^$/d;}'
+#  fi
+#fi
 
 #
 # stage: ENV-EDIT
