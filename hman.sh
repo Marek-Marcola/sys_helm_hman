@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202512110061"
+VERSION_BIN="202601020061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -17,7 +17,7 @@ EXEC=0
 EVAL=0
 ELIST=0
 ESHOW=0
-ESHOW_REXP=""
+ESHOW_RE=""
 EEDIT=0
 EEDIT_TEMPLATE=0
 RLIST=0
@@ -32,6 +32,7 @@ ALIST=0
 AHISTORY=0
 AMANIFEST=0
 ACHART=0
+ACHART_RE=""
 ALOG=0
 RRESTART=0
 RHISTORY=0
@@ -42,26 +43,17 @@ SLOAD=0
 HELP=0
 QUIET=0
 
+ARGC=$#
 declare -a ARGS1
 declare -a OPTS2
 ARGS2=""
-REXP=""
 
 s=0
 
-: ${A:=$(basename ${BASH_SOURCE%.sh})}
+: ${A:=${SN%.sh}}
 : ${EDIR:="/usr/local/etc/hman.d"}
 : ${BDIR:="/usr/local/bin/alias-hman"}
 : ${COMM:=$(readlink -f ${BASH_SOURCE})}
-
-if [ $# -eq 0 ]; then
-  if [ "$A" = "hman" ]; then
-    ELIST=1
-    QUIET=1
-  else
-    AHISTORY=1
-  fi
-fi
 
 if [[ $COMM == *hman-exec.sh ]]; then
   set - -- $*
@@ -135,7 +127,7 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     -s*)
-      [[ "$1" != "-s" ]] && ESHOW_REXP=${1:2}
+      [[ "$1" != "-s" ]] && ESHOW_RE=${1:2}
       ESHOW=1
       QUIET=1
       shift
@@ -254,6 +246,17 @@ while [ $# -gt 0 ]; do
   esac
 done
 
+if [[ $ARGC -eq 0 && "$A" = "hman" ]]; then
+  ACHART=1
+  QUIET=1
+elif [[ $ARGC -eq 0 && $COMM != *hman-exec.sh ]]; then
+  AHISTORY=1
+elif [[ $ARGC -eq 1 && "${OPTS2[0]}" != "" ]]; then
+  ACHART=1
+  ACHART_RE=${OPTS2[0]}
+  QUIET=1
+fi
+
 #
 # stage: HELP
 #
@@ -292,10 +295,11 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -ls              # spooler list"
   echo ""
   echo "$SN -l               # env list"
-  echo "$SN -s[rexp]         # env show"
+  echo "$SN -s[re]           # env show"
   echo "$SN -E               # env edit"
   echo "$SN -Et              # env edit with template"
-  echo "$SN                  # env list/app history"
+  echo ""
+  echo "$SN [re]             # app chart"
   echo ""
   echo "opts:"
   echo "  -A  release name"
@@ -498,9 +502,9 @@ fi
 #
 if [ $ESHOW -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: ENV-SHOW (rexp: *$ESHOW_REXP*)"
+  echo "$ID: stage: ENV-SHOW (re: *$ESHOW_RE*)"
 
-  if [ "$A" != "hman" -a  "$ESHOW_REXP" = "" ]; then
+  if [ "$A" != "hman" -a  "$ESHOW_RE" = "" ]; then
     if [ ! -f $EDIR/$A ]; then
       echo file not found: $EDIR/$A
     else
@@ -509,7 +513,7 @@ if [ $ESHOW -eq 1 ]; then
       { set +ex; } 2>/dev/null
     fi
   else
-    for f in $EDIR/*$ESHOW_REXP*; do
+    for f in $EDIR/*$ESHOW_RE*; do
       if [ -f $f ]; then
         set -ex
         cat $f  2>&1
@@ -519,27 +523,6 @@ if [ $ESHOW -eq 1 ]; then
     done
   fi
 fi
-
-#
-# stage: ENV-SHOW-ALL
-#
-#if [ $ESHOW_ALL -eq 1 ]; then
-#  (( $s != 0 )) && echo; ((++s))
-#  echo "$ID: stage: ENV-SHOW-ALL (rexp: *$REXP*)"
-#
-#  if [ ! -d $EDIR ]; then
-#    echo directory not found: $EDIR
-#  else
-#    (
-#    for f in $EDIR/*$REXP*; do
-#      if [ -f $f ]; then
-#        echo | xargs -L1 -t cat $f 2>&1
-#        echo
-#      fi
-#    done
-#    ) | sed '${/^$/d;}'
-#  fi
-#fi
 
 #
 # stage: ENV-EDIT
@@ -764,23 +747,25 @@ fi
 #
 if [ $ACHART -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: APP-CHART"
+  echo "$ID: stage: APP-CHART (re: *$ACHART_RE*)"
 
   (
   echo App Nspace Chart Ver
-  for f in $(ls -A $EDIR); do
+  for f in $EDIR/*$ACHART_RE*; do
     (
+    if [ -f $f ]; then
       unset N
       unset C
       unset V
-      . $EDIR/$f
+      . $f
       [[ "$N" = "" ]] && N="-"
       [[ "$C" = "" ]] && C="-"
       [[ "$V" = "" ]] && V="-"
       echo $(basename $f) $N $C $V
+    fi
     )
   done
-  ) | column -t
+  ) 2>/dev/null | column -t
 fi
 
 #
