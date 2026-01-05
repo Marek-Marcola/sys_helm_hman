@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202601020061"
+VERSION_BIN="202601050061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -479,6 +479,25 @@ if [ $EXEC -eq 1 ]; then
     cd $WDIR
     { set +ex; } 2>/dev/null
   fi
+
+  NS_POD=$(
+    kubectl get pod -A -o=jsonpath='{range .items[*]}{"\n"}{.metadata.namespace}{" "}{.metadata.name}' |\
+    grep $A |\
+    awk '{if(val==$1){gsub("^"val,"");printf $0}else{if(NR>1)print "";val=$1;printf $0}}END{print ""}' |\
+    grep -v ^$ |\
+    head -1 |\
+    cut -f1,2 -d" "
+  )
+
+  if [ -z $ARGS2 ]; then
+    cmd="bash -l"
+  else
+    cmd=$ARGS2
+  fi
+
+  set -ex
+  kubectl exec -n $NS_POD -ti -- $cmd
+  { set +ex; } 2>/dev/null
 fi
 
 #
