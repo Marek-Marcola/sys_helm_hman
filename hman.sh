@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202601050061"
+VERSION_BIN="202601060061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -489,7 +489,7 @@ if [ $EXEC -eq 1 ]; then
     cut -f1,2 -d" "
   )
 
-  if [ -z $ARGS2 ]; then
+  if [ -z "$ARGS2" ]; then
     cmd="bash -l"
   else
     cmd=$ARGS2
