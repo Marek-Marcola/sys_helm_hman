@@ -51,6 +51,8 @@ ARGS2=""
 s=0
 
 : ${A:=${SN%.sh}}
+: ${APN:=$(echo $A|cut -d- -f2)}
+: ${API:=$(echo $A|cut -d- -f3-)}
 : ${EDIR:="/usr/local/etc/hman.d"}
 : ${BDIR:="/usr/local/bin/alias-hman"}
 : ${COMM:=$(readlink -f ${BASH_SOURCE})}
@@ -312,12 +314,15 @@ if [ $HELP -eq 1 ]; then
   echo "  -Sd sdir ($SDIR)"
   echo ""
   echo "env files: /usr/local/etc/hman.env $EDIR/\$A \$HOME/.hman.env .hman.env \$HMANENV"
-  echo "env vars:"
-  echo "  \$A - release name"
-  echo "  \$V - chart version"
-  echo "  \$C - chart name"
-  echo "  \$N - namespace"
-  echo "  \$T - type"
+  echo ""
+  echo "env variables used in env file:"
+  echo "  \$A   - release name"
+  echo "  \$APN - app name"
+  echo "  \$API - app id"
+  echo "  \$V   - chart version"
+  echo "  \$C   - chart name"
+  echo "  \$N   - namespace"
+  echo "  \$T   - type"
   echo ""
   echo "notes:"
   echo "  hm -L -x            # link"
@@ -392,6 +397,8 @@ if [ $QUIET -eq 0 ]; then
   echo "cwd    = $(pwd -P)"
   echo "efile  = ${EFILE:-[none]}"
   echo "App    = ${A:-[none]}"
+  echo "APN    = ${APN:-[none]}"
+  echo "API    = ${API:-[none]}"
   echo "Ver    = ${V:-[none]}"
   echo "Chart  = ${C:-[none]}"
   echo "Nspace = ${N:-[none]}"
