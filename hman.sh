@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202603040061"
+VERSION_BIN="202603050061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -295,8 +295,8 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -RS              # res rollout status"
   echo "$SN -Rn              # res scale replicas to n"
   echo ""
-  echo "$SN -la              # spooler load,archive"
   echo "$SN -ls              # spooler list"
+  echo "$SN -la              # spooler load,archive"
   echo ""
   echo "$SN -l               # env list"
   echo "$SN -s[re]           # env show"
