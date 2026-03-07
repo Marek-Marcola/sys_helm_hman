@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202603050061"
+VERSION_BIN="202603080061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -54,7 +54,7 @@ s=0
 : ${APN:=$(echo $A|cut -d- -f2)}
 : ${API:=$(echo $A|cut -d- -f3-)}
 : ${EDIR:="/usr/local/etc/hman.d"}
-: ${BDIR:="/usr/local/bin/alias-hman"}
+: ${LDIR:="/usr/local/bin/alias-hman"}
 : ${COMM:=$(readlink -f ${BASH_SOURCE})}
 
 if [[ $COMM == *hman-exec.sh ]]; then
@@ -107,8 +107,8 @@ while [ $# -gt 0 ]; do
       EDIR="$2"
       shift; shift
       ;;
-    -Bd)
-      BDIR="$2"
+    -Ld)
+      LDIR="$2"
       shift; shift
       ;;
     -L)
@@ -312,7 +312,7 @@ if [ $HELP -eq 1 ]; then
   echo "  -N  namespace"
   echo "  -T  type"
   echo "  -Ed edir ($EDIR)"
-  echo "  -Bd ldir ($BDIR)"
+  echo "  -Ld ldir ($LDIR)"
   echo "  -Sd sdir ($SDIR)"
   echo ""
   echo "env files: /usr/local/etc/hman.env $EDIR/\$A \$HOME/.hman.env .hman.env \$HMANENV"
@@ -409,7 +409,7 @@ if [ $QUIET -eq 0 ]; then
   echo "Type   = ${T:-[none]}"
   echo "wdir   = ${WDIR:-[none]}"
   echo "edir   = ${EDIR:-[none]}"
-  echo "bdir   = ${BDIR:-[none]}"
+  echo "ldir   = ${LDIR:-[none]}"
   echo "comm   = ${COMM:-[none]}"
 
   if [ "$OPTS" != "" ]; then
@@ -452,8 +452,8 @@ if [ $LINK -ne 0 ]; then
     echo $ID: directory not found: $EDIR
     exit 1
   fi
-  if [ ! -d $BDIR ]; then
-    echo $ID: directory not found: $BDIR
+  if [ ! -d $LDIR ]; then
+    echo $ID: directory not found: $LDIR
     exit 1
   fi
 
@@ -464,16 +464,16 @@ if [ $LINK -ne 0 ]; then
     else
       LSRC=${COMM}
     fi
-    if [ ! -f $BDIR/$E ]; then
+    if [ ! -f $LDIR/$E ]; then
       if [ $EVAL -ne 0 ]; then
         set -ex
-        ln -svr $LSRC $BDIR/$E
+        ln -svr $LSRC $LDIR/$E
         { set +ex; } 2>/dev/null
       else
-        echo "ln -svr $LSRC $BDIR/$E"
+        echo "ln -svr $LSRC $LDIR/$E"
       fi
     else
-      echo "# ln -svr $LSRC $BDIR/$E"
+      echo "# ln -svr $LSRC $LDIR/$E"
     fi
   done
 fi
