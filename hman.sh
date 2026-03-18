@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202603080061"
+VERSION_BIN="202603180061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -884,7 +884,7 @@ if [ $SLOAD -ne 0 ]; then
   ls *.tgz 2>/dev/null | sort | \
   while read I; do
     set -ex
-    curl -sk --netrc-file ${CM_AUTH} --data-binary "@$I" ${CM_HOST}/api/charts?force | jq
+    curl -sk --netrc-file $CM_AUTH --data-binary "@$I" $CM_HOST/api/charts?force | jq
     { set +ex; } 2>/dev/null
     if [ -d archive ]; then
       set -ex
