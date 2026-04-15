@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260406"
+VERSION_BIN="260415"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -877,7 +877,7 @@ if [ $SLOAD -ne 0 ]; then
 
   set -ex
   cd $SDIR
-  tree --noreport -F -h -C -L 1 $SDIR
+  tree --noreport -F -h -C -L 1 -f $SDIR
   { set +ex; } 2>/dev/null
   echo
 
@@ -909,7 +909,7 @@ if [ $SLIST -ne 0 ]; then
 
   set -ex
   cd $SDIR
-  tree --noreport -F -h -C -L 1 $SDIR
+  tree --noreport -F -h -C -L 1 -f $SDIR
   { set +ex; } 2>/dev/null
 fi
 
