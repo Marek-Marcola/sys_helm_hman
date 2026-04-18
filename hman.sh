@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260415"
+VERSION_BIN="260418"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -8,7 +8,9 @@ ID="[$SN]"
 SDIR="/dep/c"
 DDIR="/var/backup/hman"
 
-INSTALL=0
+INSTALL_RSYNC=0
+INSTALL_ANPB=0
+INSTALL_ANPB_HP="hman"
 VERSION=0
 BACKUP=0
 BACKUP_LIST=0
@@ -64,12 +66,17 @@ fi
 
 while [ $# -gt 0 ]; do
   case $1 in
-    --inst*|-inst*)
-      INSTALL=1
-      shift
-      ;;
     --vers*|-vers*)
       VERSION=1
+      shift
+      ;;
+    --inst*|-inst*)
+      INSTALL_RSYNC=1
+      shift
+      ;;
+    --anpb|-anpb)
+      INSTALL_ANPB=1
+      [[ -n "$2" && ${2:0:1} != "-" ]] && INSTALL_ANPB_HP="$2" && shift
       shift
       ;;
     -B)
@@ -265,45 +272,47 @@ fi
 # stage: HELP
 #
 if [ $HELP -eq 1 ]; then
-  echo "$SN -install         # install"
-  echo "$SN -version         # version"
-  echo "$SN -B               # backup"
-  echo "$SN -Bl              # backup list"
+  echo "$SN -version                  # version"
+  echo "$SN -install                  # install with rsync"
+  echo "$SN -anpb [host_pattern] [-x] # install with ansible"
   echo ""
-  echo "$SN -L [-x]          # link show,run"
+  echo "$SN -B                        # backup"
+  echo "$SN -Bl                       # backup list"
   echo ""
-  echo "$SN -e [args2]       # exec"
-  echo "$SN -rl              # repo list"
-  echo "$SN -ru [repo]       # repo update"
-  echo "$SN -r [keyword]     # repo search"
-  echo "$SN -c               # chart info"
-  echo "$SN -cr              # chart readme"
-  echo "$SN -cv              # chart values"
-  echo "$SN -D               # app diff yaml"
+  echo "$SN -L [-x]                   # link show,run"
   echo ""
-  echo "$SN -init [-x]       # app init show/run"
-  echo "$SN -iu   [-x]       # app install/update"
-  echo "$SN -u    [-x]       # app uninstall"
-  echo "$SN -a               # app list"
-  echo "$SN -ah              # app history"
-  echo "$SN -am              # app manifest"
-  echo "$SN -ac              # app chart"
-  echo "$SN -al              # app log"
+  echo "$SN -e [args2]                # exec"
+  echo "$SN -rl                       # repo list"
+  echo "$SN -ru [repo]                # repo update"
+  echo "$SN -r [keyword]              # repo search"
+  echo "$SN -c                        # chart info"
+  echo "$SN -cr                       # chart readme"
+  echo "$SN -cv                       # chart values"
+  echo "$SN -D                        # app diff yaml"
   echo ""
-  echo "$SN -RR              # res rollout restart"
-  echo "$SN -RH              # res rollout history"
-  echo "$SN -RS              # res rollout status"
-  echo "$SN -Rn              # res scale replicas to n"
+  echo "$SN -init [-x]                # app init show/run"
+  echo "$SN -iu   [-x]                # app install/update"
+  echo "$SN -u    [-x]                # app uninstall"
+  echo "$SN -a                        # app list"
+  echo "$SN -ah                       # app history"
+  echo "$SN -am                       # app manifest"
+  echo "$SN -ac                       # app chart"
+  echo "$SN -al                       # app log"
   echo ""
-  echo "$SN -ls              # spooler list"
-  echo "$SN -la              # spooler load,archive"
+  echo "$SN -RR                       # res rollout restart"
+  echo "$SN -RH                       # res rollout history"
+  echo "$SN -RS                       # res rollout status"
+  echo "$SN -Rn                       # res scale replicas to n"
   echo ""
-  echo "$SN -l               # env list"
-  echo "$SN -s[re]           # env show"
-  echo "$SN -E               # env edit"
-  echo "$SN -Et              # env edit with template"
+  echo "$SN -ls                       # spooler list"
+  echo "$SN -la                       # spooler load,archive"
   echo ""
-  echo "$SN [re]             # app chart"
+  echo "$SN -l                        # env list"
+  echo "$SN -s[re]                    # env show"
+  echo "$SN -E                        # env edit"
+  echo "$SN -Et                       # env edit with template"
+  echo ""
+  echo "$SN [re]                      # app chart"
   echo ""
   echo "opts:"
   echo "  -A  release name"
@@ -346,7 +355,7 @@ fi
 for f in /usr/local/etc/hman.env $EDIR/$A $HOME/.hman.env .hman.env $CMANENV; do
   if [ -e $f ]; then
     [[ "$EFILE" != "" ]] && EFILE="$EFILE $f" || EFILE="$f"
-    . ${f}
+    . $f
   fi
 done
 
@@ -375,9 +384,12 @@ if [ $VERSION -eq 1 ]; then
 fi
 
 #
-# stage: INSTALL
+# stage: INSTALL-RSYNC
 #
-if [ $INSTALL -eq 1 ]; then
+if [ $INSTALL_RSYNC -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: INSTALL-RSYNC"
+
   if [ -f hman.sh ]; then
     for d in /usr/local/bin /pub/pkb/kb/data/999222-hman/999222-000020_hman_script /pub/pkb/pb/playbooks/999222-hman/files; do
       if [ -d $d ]; then
@@ -387,6 +399,32 @@ if [ $INSTALL -eq 1 ]; then
       fi
     done
   fi
+
+  exit 0
+fi
+
+#
+# stage: INSTALL-ANPB
+#
+if [ $INSTALL_ANPB -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: INSTALL-ANPB (EVAL=$EVAL)"
+
+  if [ ! $(type -t anpb) ]; then
+    echo "$ID: error: command not found: anpb"
+    exit 1
+  fi
+
+  if [ $EVAL -eq 0 ]; then
+    set -ex
+    anpb hman_install.yml -e h=$INSTALL_ANPB_HP -v --check --diff
+    { set +ex; } 2>/dev/null
+  else
+    set -ex
+    anpb hman_install.yml -e h=$INSTALL_ANPB_HP -v
+    { set +ex; } 2>/dev/null
+  fi
+
   exit 0
 fi
 
