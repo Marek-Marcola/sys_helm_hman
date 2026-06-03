@@ -12,6 +12,7 @@ INSTALL_RSYNC=0
 INSTALL_ANPB=0
 INSTALL_ANPB_HP="hman"
 VERSION=0
+STAGE_LIST=0
 BACKUP=0
 BACKUP_LIST=0
 LINK=0
@@ -77,6 +78,10 @@ while [ $# -gt 0 ]; do
     --anpb|-anpb)
       INSTALL_ANPB=1
       [[ -n "$2" && ${2:0:1} != "-" ]] && INSTALL_ANPB_HP="$2" && shift
+      shift
+      ;;
+    --stage|-stage)
+      STAGE_LIST=1
       shift
       ;;
     -B)
@@ -275,6 +280,7 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -version                  # version"
   echo "$SN -install                  # install with rsync"
   echo "$SN -anpb [host_pattern] [-x] # install with ansible"
+  echo "$SN -stage                    # stage list"
   echo ""
   echo "$SN -B                        # backup"
   echo "$SN -Bl                       # backup list"
@@ -421,6 +427,14 @@ if [ $INSTALL_ANPB -eq 1 ]; then
   anpb hman_install.yml -e h=$INSTALL_ANPB_HP $EVAL_OPT
   { set +ex; } 2>/dev/null
 
+  exit 0
+fi
+
+#
+# stage: STAGE-LIST
+#
+if [ $STAGE_LIST -eq 1 ]; then
+  cat $COMM | grep '^#' | grep 'stage:'
   exit 0
 fi
 
