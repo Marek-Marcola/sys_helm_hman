@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260504"
+VERSION_BIN="260603"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -960,7 +960,7 @@ if [ $BACKUP -ne 0 ]; then
     { set +x; } 2>/dev/null
   fi
 
-  F=$DDIR/hman-$(hostname -s)-$(date "+%Y%m%d%H%M").tar
+  F=$DDIR/hman-$(hostname -s)-$(date "+%y%m%d%H%M").tar
 
   set -x
   cd /usr/local
