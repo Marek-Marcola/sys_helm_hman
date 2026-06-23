@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260603"
+VERSION_BIN="260623"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -43,6 +43,7 @@ RSTATUS=0
 RSCALE=""
 SLIST=0
 SLOAD=0
+ARCH=0
 HELP=0
 QUIET=0
 
@@ -230,12 +231,15 @@ while [ $# -gt 0 ]; do
       RSTATUS=1
       shift
       ;;
-    -la)
-      SLOAD=1
+    -ls)
+      QUIET=1
+      SLIST=1
       shift
       ;;
-    -ls)
-      SLIST=1
+    -la)
+      QUIET=1
+      SLOAD=1
+      ARCH=1
       shift
       ;;
     -R[[:digit:]]*)
@@ -907,18 +911,36 @@ if [ "$RSCALE" != "" ]; then
 fi
 
 #
+# stage: SPOOLER-LIST
+#
+if [ $SLIST -ne 0 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: SPOOLER-LIST"
+
+  if [ ! -d "$SDIR" ]; then
+    echo "$ID: error: no spooler dir: $SDIR"
+    exit 1
+  fi
+
+  set -ex
+  cd $SDIR
+  tree --noreport -F -h -C -L 1 -f $SDIR
+  { set +ex; } 2>/dev/null
+fi
+
+#
 # stage: SPOOLER-LOAD
 #
 if [ $SLOAD -ne 0 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: SPOOLER-LOAD"
 
-  if [ ! -d $SDIR ]; then
-    echo "$ID: error: no spooler dir: $SDIR"
+  if [ ! -f "$SDIR" -a ! -d "$SDIR" ]; then
+    echo "$ID: error: access: $SDIR"
     exit 1
   fi
 
-  if [ "$CM_HOST" = "" ]; then
+  if [ -z "$CM_HOST" ]; then
     echo error: require CM_HOST
     exit 1
   fi
@@ -930,35 +952,21 @@ if [ $SLOAD -ne 0 ]; then
   echo
 
   ls *.tgz 2>/dev/null | sort | \
-  while read I; do
-    set -ex
-    curl -sk --netrc-file $CM_AUTH --data-binary "@$I" $CM_HOST/api/charts?force | jq
-    { set +ex; } 2>/dev/null
-    if [ -d archive ]; then
+  while read C; do
+    for r in $CM_HOST; do
       set -ex
-      mv -fv $I archive/
+      curl -sk --netrc-file $CM_AUTH --data-binary "@$C" $r/api/charts?force | jq
       { set +ex; } 2>/dev/null
+    done
+    if [ $ARCH -ne 0 ]; then
+      if [ -d archive ]; then
+        echo
+        set -ex
+        mv -fv $C archive/
+        { set +ex; } 2>/dev/null
+      fi
     fi
-    echo
   done
-fi
-
-#
-# stage: SPOOLER-LIST
-#
-if [ $SLIST -ne 0 ]; then
-  (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: SPOOLER-LIST"
-
-  if [ ! -d $SDIR ]; then
-    echo "$ID: error: no spooler dir: $SDIR"
-    exit 1
-  fi
-
-  set -ex
-  cd $SDIR
-  tree --noreport -F -h -C -L 1 -f $SDIR
-  { set +ex; } 2>/dev/null
 fi
 
 #
