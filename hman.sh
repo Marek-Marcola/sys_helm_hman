@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260623"
+VERSION_BIN="260715"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -68,7 +68,7 @@ fi
 
 while [ $# -gt 0 ]; do
   case $1 in
-    --vers*|-vers*)
+    --ver*|-ver*)
       VERSION=1
       shift
       ;;
@@ -281,8 +281,8 @@ fi
 # stage: HELP
 #
 if [ $HELP -eq 1 ]; then
-  echo "$SN -version                  # version"
-  echo "$SN -install                  # install with rsync"
+  echo "$SN -ver                      # version"
+  echo "$SN -inst [-x]                # install with rsync"
   echo "$SN -anpb [host_pattern] [-x] # install with ansible"
   echo "$SN -stage                    # stage list"
   echo ""
@@ -400,14 +400,18 @@ if [ $INSTALL_RSYNC -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: INSTALL-RSYNC"
 
+  [[ $EVAL -ne 1 ]] && EVAL_OPT="-n" || EVAL_OPT=""
+
   if [ -f hman.sh ]; then
     for d in /usr/local/bin /pub/pkb/kb/data/999222-hman/999222-000020_hman_script /pub/pkb/pb/playbooks/999222-hman/files; do
       if [ -d $d ]; then
         set -ex
-        rsync -ai hman.sh $d
+        rsync -ai $EVAL_OPT hman.sh $d
         { set +ex; } 2>/dev/null
       fi
     done
+  elif [ /pub/pkb/pb/playbooks/999222-hman/files/hman.sh ]; then
+    rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999222-hman/files/hman.sh /usr/local/bin/
   fi
 
   exit 0
