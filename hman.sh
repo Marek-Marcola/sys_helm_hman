@@ -387,7 +387,8 @@ if [ $VERSION -eq 1 ]; then
   echo "${0##*/}  $VERSION_BIN"
   if [ $(type -t helm) ]; then
     set -ex
-    helm version
+    helm version --short
+    helm plugin list
     { set +ex; } 2>/dev/null
   fi
   exit 0
