@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260715"
+VERSION_BIN="260720"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -281,6 +281,8 @@ fi
 # stage: HELP
 #
 if [ $HELP -eq 1 ]; then
+  echo "Helm chart management tools."
+  echo ""
   echo "$SN -ver                      # version"
   echo "$SN -inst [-x]                # install with rsync"
   echo "$SN -anpb [host_pattern] [-x] # install with ansible"
