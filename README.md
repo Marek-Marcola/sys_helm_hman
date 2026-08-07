@@ -7,9 +7,9 @@ Install
 -------
 Install:
 
-    ./hman.sh --inst -x
+    hman.sh --inst -x
     -- or --
-    ./hman.sh --anpb -x
+    hman.sh --anpb -x
     -- or --
     cp -fv hman.sh /usr/local/bin/hman.sh
     cp -fv hman.sh /usr/local/bin/hman-exec.sh
