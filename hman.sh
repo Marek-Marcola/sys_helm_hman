@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260828"
+VERSION_BIN="260830"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -9,6 +9,7 @@ SDIR="/dep/c"
 DDIR="/var/backup/hman"
 
 INSTALL_RSYNC=0
+INSTALL_RSYNC_HL=""
 INSTALL_ANPB=0
 INSTALL_ANPB_HP="hman"
 VERSION=0
@@ -74,6 +75,7 @@ while [ $# -gt 0 ]; do
       ;;
     --inst*|-inst*)
       INSTALL_RSYNC=1
+      [[ -n "$2" && ${2:0:1} != "-" ]] && INSTALL_RSYNC_HL="$2" && shift
       shift
       ;;
     --anpb|-anpb)
@@ -284,7 +286,7 @@ if [ $HELP -eq 1 ]; then
   echo "Helm chart management tools."
   echo ""
   echo "$SN -ver                      # version"
-  echo "$SN -inst [-x]                # install with rsync"
+  echo "$SN -inst [host_list]    [-x] # install with rsync"
   echo "$SN -anpb [host_pattern] [-x] # install with ansible"
   echo "$SN -stage                    # stage list"
   echo ""
@@ -410,15 +412,50 @@ if [ $INSTALL_RSYNC -eq 1 ]; then
   [[ $EVAL -ne 1 ]] && EVAL_OPT="-n" || EVAL_OPT=""
 
   if [ -f hman.sh ]; then
-    for d in /usr/local/bin /pub/pkb/kb/data/999222-hman/999222-000020_hman_script /pub/pkb/pb/playbooks/999222-hman/files; do
+    for d in /usr/local/bin /pub/pkb/pb/playbooks/999222-hman/files; do
       if [ -d $d ]; then
         set -ex
-        rsync -ai $EVAL_OPT hman.sh $d
+        rsync -ai $EVAL_OPT hman.sh $d/hman.sh
+        rsync -ai $EVAL_OPT hman.sh $d/hman-exec.sh
         { set +ex; } 2>/dev/null
       fi
     done
   elif [ /pub/pkb/pb/playbooks/999222-hman/files/hman.sh ]; then
-    rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999222-hman/files/hman.sh /usr/local/bin/
+    if [ -n "$INSTALL_RSYNC_HL" ]; then
+      for h in $(echo $INSTALL_RSYNC_HL|sed 's/,/ /g'); do
+        set -ex
+        rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999222-hman/files/hman.sh $h:/usr/local/bin/hman.sh
+        rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999222-hman/files/hman.sh $h:/usr/local/bin/hman-exec.sh
+        { set +ex; } 2>/dev/null
+      done
+    else
+      set -ex
+      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999222-hman/files/hman.sh /usr/local/bin/hman.sh
+      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999222-hman/files/hman.sh /usr/local/bin/hman-exec.sh
+      { set +ex; } 2>/dev/null
+    fi
+  fi
+
+  if [ -f zlocal-hman.sh ]; then
+    for d in /etc/profile.d/ /pub/pkb/pb/playbooks/999222-hman/files/; do
+      if [ -d $d ]; then
+        set -ex
+        rsync -ai $EVAL_OPT zlocal-hman.sh $d
+        { set +ex; } 2>/dev/null
+      fi
+    done
+  elif [ -f /pub/pkb/pb/playbooks/999222-hman/files/zlocal-hman.sh ]; then
+    if [ -n "$INSTALL_RSYNC_HL" ]; then
+      for h in $(echo $INSTALL_RSYNC_HL|sed 's/,/ /g'); do
+        set -ex
+        rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999222-hman/files/zlocal-hman.sh $h:/etc/profile.d/zlocal-hman.sh
+        { set +ex; } 2>/dev/null
+      done
+    else
+      set -ex
+      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999222-hman/files/zlocal-hman.sh /etc/profile.d/zlocal-hman.sh
+      { set +ex; } 2>/dev/null
+    fi
   fi
 
   exit 0
