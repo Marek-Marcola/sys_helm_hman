@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260830"
+VERSION_BIN="260831"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -453,7 +453,7 @@ fi
 #
 if [ $INSTALL_ANPB -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: INSTALL-ANPB (EVAL=$EVAL)"
+  echo "$ID: stage: INSTALL-ANPB (EVAL=$EVAL HP=$INSTALL_ANPB_HP)"
 
   if [ ! $(type -t anpb) ]; then
     echo "$ID: error: command not found: anpb"
