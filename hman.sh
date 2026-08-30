@@ -9,7 +9,7 @@ SDIR="/dep/c"
 DDIR="/var/backup/hman"
 
 INSTALL_RSYNC=0
-INSTALL_RSYNC_HL=""
+INSTALL_RSYNC_HL="$(hostname -s)"
 INSTALL_ANPB=0
 INSTALL_ANPB_HP="hman"
 VERSION=0
@@ -407,7 +407,7 @@ fi
 #
 if [ $INSTALL_RSYNC -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: INSTALL-RSYNC"
+  echo "$ID: stage: INSTALL-RSYNC (EVAL=$EVAL HL=$INSTALL_RSYNC_HL)"
 
   [[ $EVAL -ne 1 ]] && EVAL_OPT="-n" || EVAL_OPT=""
 
@@ -421,19 +421,12 @@ if [ $INSTALL_RSYNC -eq 1 ]; then
       fi
     done
   elif [ /pub/pkb/pb/playbooks/999222-hman/files/hman.sh ]; then
-    if [ -n "$INSTALL_RSYNC_HL" ]; then
-      for h in $(echo $INSTALL_RSYNC_HL|sed 's/,/ /g'); do
-        set -ex
-        rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999222-hman/files/hman.sh $h:/usr/local/bin/hman.sh
-        rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999222-hman/files/hman.sh $h:/usr/local/bin/hman-exec.sh
-        { set +ex; } 2>/dev/null
-      done
-    else
+    for h in $(echo $INSTALL_RSYNC_HL|sed 's/,/ /g'); do
       set -ex
-      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999222-hman/files/hman.sh /usr/local/bin/hman.sh
-      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999222-hman/files/hman.sh /usr/local/bin/hman-exec.sh
+      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999222-hman/files/hman.sh $h:/usr/local/bin/hman.sh
+      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999222-hman/files/hman.sh $h:/usr/local/bin/hman-exec.sh
       { set +ex; } 2>/dev/null
-    fi
+    done
   fi
 
   if [ -f zlocal-hman.sh ]; then
@@ -445,17 +438,11 @@ if [ $INSTALL_RSYNC -eq 1 ]; then
       fi
     done
   elif [ -f /pub/pkb/pb/playbooks/999222-hman/files/zlocal-hman.sh ]; then
-    if [ -n "$INSTALL_RSYNC_HL" ]; then
-      for h in $(echo $INSTALL_RSYNC_HL|sed 's/,/ /g'); do
-        set -ex
-        rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999222-hman/files/zlocal-hman.sh $h:/etc/profile.d/zlocal-hman.sh
-        { set +ex; } 2>/dev/null
-      done
-    else
+    for h in $(echo $INSTALL_RSYNC_HL|sed 's/,/ /g'); do
       set -ex
-      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999222-hman/files/zlocal-hman.sh /etc/profile.d/zlocal-hman.sh
+      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999222-hman/files/zlocal-hman.sh $h:/etc/profile.d/zlocal-hman.sh
       { set +ex; } 2>/dev/null
-    fi
+    done
   fi
 
   exit 0
