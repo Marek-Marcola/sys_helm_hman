@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260831"
+VERSION_BIN="260911"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -456,7 +456,7 @@ if [ $INSTALL_ANPB -eq 1 ]; then
   echo "$ID: stage: INSTALL-ANPB (EVAL=$EVAL HP=$INSTALL_ANPB_HP)"
 
   if [ ! $(type -t anpb) ]; then
-    echo "$ID: error: command not found: anpb"
+    echo "$ID: E: command not found: anpb"
     exit 1
   fi
 
@@ -536,11 +536,11 @@ if [ $LINK -ne 0 ]; then
   echo "$ID: stage: LINK (EVAL=$EVAL)"
 
   if [ ! -d $EDIR ]; then
-    echo $ID: directory not found: $EDIR
+    echo "$ID: E: directory not found: $EDIR"
     exit 1
   fi
   if [ ! -d $LDIR ]; then
-    echo $ID: directory not found: $LDIR
+    echo "$ID: E: directory not found: $LDIR"
     exit 1
   fi
 
@@ -606,7 +606,7 @@ if [ $ELIST -eq 1 ]; then
   echo "$ID: stage: ENV-LIST"
 
   if [ ! -d $EDIR ]; then
-    echo directory not found: $EDIR
+    echo "$ID: E: directory not found: $EDIR"
   else
     set -ex
     ls -log $EDIR/
@@ -623,7 +623,7 @@ if [ $ESHOW -eq 1 ]; then
 
   if [ "$A" != "hman" -a  "$ESHOW_RE" = "" ]; then
     if [ ! -f $EDIR/$A ]; then
-      echo file not found: $EDIR/$A
+      echo "$ID: E: file not found: $EDIR/$A"
     else
       set -ex
       cat $EDIR/$A
@@ -649,7 +649,7 @@ if [ $EEDIT -eq 1 ]; then
   echo "$ID: stage: ENV-EDIT"
 
   if [ ! -d $EDIR ]; then
-    echo directory not found: $EDIR
+    echo "$ID: E: directory not found: $EDIR"
   else
     set -ex
     vi $EDIR/$A
@@ -665,13 +665,13 @@ if [ $EEDIT_TEMPLATE -eq 1 ]; then
   echo "$ID: stage: ENV-EDIT-TEMPLATE"
 
   if [ ! -d $EDIR ]; then
-    echo directory not found: $EDIR
+    echo "$ID: E: directory not found: $EDIR"
   else
     if [ ! -f $EDIR/$A ]; then
-      echo create file: $EDIR/$A
+      echo "$ID: I: create file: $EDIR/$A"
       echo "$ETEMPLATE" > $EDIR/$A
     else
-      echo file exists: $EDIR/$A
+      echo "$ID: I: file exists: $EDIR/$A"
     fi
     set -ex
     vi $EDIR/$A
@@ -953,7 +953,7 @@ if [ $SLIST -ne 0 ]; then
   echo "$ID: stage: SPOOLER-LIST"
 
   if [ ! -d "$SDIR" ]; then
-    echo "$ID: error: no spooler dir: $SDIR"
+    echo "$ID: E: no spooler dir: $SDIR"
     exit 1
   fi
 
@@ -971,12 +971,12 @@ if [ $SLOAD -ne 0 ]; then
   echo "$ID: stage: SPOOLER-LOAD"
 
   if [ ! -f "$SDIR" -a ! -d "$SDIR" ]; then
-    echo "$ID: error: access: $SDIR"
+    echo "$ID: E: access: $SDIR"
     exit 1
   fi
 
   if [ -z "$CM_HOST" ]; then
-    echo error: require CM_HOST
+    echo "$ID: E: require: CM_HOST"
     exit 1
   fi
 
