@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="261021"
+VERSION_BIN="261108"
 
 SN="${0##*/}"
 ID="[${SN%.sh}]"
@@ -19,6 +19,7 @@ STAGE_LIST=0
 BACKUP=0
 BACKUP_LIST=0
 LINK=0
+LINK_CHECK=0
 EXEC=0
 EVAL=0
 ELIST=0
@@ -135,6 +136,11 @@ while [ $# -gt 0 ]; do
       ;;
     -L)
       LINK=1
+      shift
+      ;;
+    -Lc)
+      LINK_CHECK=1
+      QUIET=1
       shift
       ;;
     -x)
@@ -600,6 +606,30 @@ if [ $LINK -ne 0 ]; then
       fi
     else
       echo "# ln -svr $LSRC $LDIR/$E"
+    fi
+  done
+fi
+
+#
+# stage: LINK-CHECK
+#
+if [ $LINK_CHECK -ne 0 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: LINK-CHECK"
+
+  if [ ! -d $EDIR ]; then
+    echo "$ID: E: directory not found: $EDIR"
+    exit 1
+  fi
+  if [ ! -d $LDIR ]; then
+    echo "$ID: E: directory not found: $LDIR"
+    exit 1
+  fi
+
+  ls $LDIR/ | \
+  while read L; do
+    if [ ! -f $EDIR/$L ]; then
+      echo " - $LDIR/$L"
     fi
   done
 fi
